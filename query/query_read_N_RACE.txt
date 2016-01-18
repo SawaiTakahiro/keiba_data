@@ -1,0 +1,5 @@
+select
+	*
+from
+	N_RACE
+limit 20;
