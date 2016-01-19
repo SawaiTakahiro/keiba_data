@@ -183,16 +183,19 @@ class Table_x_race
 	end
 	
 	def initialize(data)
-		@data = Array.new
+		@data = Hash.new
 		
 		data.each do |record|
-			@data << Record_x_race.new(record)
+			record = Record_x_race.new(record)
+			key = record.raceid_no_num
+			
+			@data.store(key, record)
 		end
 	end
 	
 	def test
 		#puts @data
-		@data[0].test
+		puts @data.keys
 	end
 end
 
