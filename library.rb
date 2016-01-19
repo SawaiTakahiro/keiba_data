@@ -126,11 +126,35 @@ class Table_x_race
 			@Jyuni4 = record[108]
 			@RecordUpKubun = record[109]
 			@PRIMARY = record[110]
-			@JyoCD = record[111]
-			@Kaiji = record[112]
-			@Nichiji = record[113]
-			@RaceNum = record[114]
+			@JyoCD2 = record[111]
+			@Kaiji2 = record[112]
+			@Nichiji2 = record[113]
+			@RaceNum2 = record[114]
+			
+			#ここからが自分で足すやつ
+			@raceid_no_num = add_raceid_no_num(@Year, @MonthDay, @JyoCD, @Kaiji, @Nichiji, @RaceNum)
 		end
+		
+		def add_raceid_no_num(year, monthday, jyocd, kaiji, nichiji, racenum)
+			#レースIDの形式
+			#西暦4桁、月、日、場所コード、回次、日次、レース番号、（馬番号）
+			raceid_no_num = Array.new
+			raceid_no_num << "RX"
+			raceid_no_num << year
+			raceid_no_num << monthday
+			raceid_no_num << jyocd
+			raceid_no_num << kaiji
+			raceid_no_num << nichiji
+			raceid_no_num << racenum
+			
+			
+			return raceid_no_num.join
+		end
+		
+		def test
+			p @raceid_no_num
+		end
+		
 	end
 	
 	def initialize(data)
@@ -142,6 +166,7 @@ class Table_x_race
 	end
 	
 	def test
-		puts @data
+		#puts @data
+		@data[0].test
 	end
 end
