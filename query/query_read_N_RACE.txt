@@ -1,5 +1,5 @@
 select
 	*
 from
-	N_RACE
-limit 20;
+	N_RACE;
+

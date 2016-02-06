@@ -1,0 +1,6 @@
+select
+	*
+from
+	N_UMA_RACE
+limit 20;
+

@@ -78,6 +78,22 @@ class Template_keiba_table
 	end
 end
 
+#データが馬単位のもの用。initializeがちょっと違う
+#ハッシュで足すときのキーが、馬番有りになっている
+class Template_keiba_table_umaban < Template_keiba_table
+	def initialize(data)
+		@data = Hash.new
+		
+		data.each do |record|
+			value = to_hash(record)	#１行分をまとめて値として扱う
+			
+			key = add_raceid(value["Year"], value["MonthDay"], value["JyoCD"], value["Kaiji"], value["Nichiji"], value["RaceNum"], value["Umaban"])
+			
+			@data.store(key, value)
+		end
+	end
+	
+end
 
 #N_RACE, S_RACE用クラス
 class Table_x_race < Template_keiba_table
@@ -269,4 +285,91 @@ end
 
 #N_HARAI, S_HARAI用クラス
 class Table_x_harai < Template_keiba_table
+end
+
+
+#N_UMA_RACE, S_UMA_RACE用クラス	馬ごとレース詳細
+class Table_x_uma_race < Template_keiba_table_umaban
+	#テーブルごとに上書きして使う
+	def to_hash(record)
+		temp = Hash.new
+		
+		#########	↓ここからテーブルごとに書き換える↓	#########
+		temp.store("RecordSpec",record[0])
+		temp.store("DataKubun",record[1])
+		temp.store("MakeDate",record[2])
+		temp.store("Year",record[3])
+		temp.store("MonthDay",record[4])
+		temp.store("JyoCD",record[5])
+		temp.store("Kaiji",record[6])
+		temp.store("Nichiji",record[7])
+		temp.store("RaceNum",record[8])
+		temp.store("Wakuban",record[9])
+		temp.store("Umaban",record[10])
+		temp.store("KettoNum",record[11])
+		temp.store("Bamei",record[12])
+		temp.store("UmaKigoCD",record[13])
+		temp.store("SexCD",record[14])
+		temp.store("HinsyuCD",record[15])
+		temp.store("KeiroCD",record[16])
+		temp.store("Barei",record[17])
+		temp.store("TozaiCD",record[18])
+		temp.store("ChokyosiCode",record[19])
+		temp.store("ChokyosiRyakusyo",record[20])
+		temp.store("BanusiCode",record[21])
+		temp.store("BanusiName",record[22])
+		temp.store("Fukusyoku",record[23])
+		temp.store("reserved1",record[24])
+		temp.store("Futan",record[25])
+		temp.store("FutanBefore",record[26])
+		temp.store("Blinker",record[27])
+		temp.store("reserved2",record[28])
+		temp.store("KisyuCode",record[29])
+		temp.store("KisyuCodeBefore",record[30])
+		temp.store("KisyuRyakusyo",record[31])
+		temp.store("KisyuRyakusyoBefore",record[32])
+		temp.store("MinaraiCD",record[33])
+		temp.store("MinaraiCDBefore",record[34])
+		temp.store("BaTaijyu",record[35])
+		temp.store("ZogenFugo",record[36])
+		temp.store("ZogenSa",record[37])
+		temp.store("IJyoCD",record[38])
+		temp.store("NyusenJyuni",record[39])
+		temp.store("KakuteiJyuni",record[40])
+		temp.store("DochakuKubun",record[41])
+		temp.store("DochakuTosu",record[42])
+		temp.store("Time",record[43])
+		temp.store("ChakusaCD",record[44])
+		temp.store("ChakusaCDP",record[45])
+		temp.store("ChakusaCDPP",record[46])
+		temp.store("Jyuni1c",record[47])
+		temp.store("Jyuni2c",record[48])
+		temp.store("Jyuni3c",record[49])
+		temp.store("Jyuni4c",record[50])
+		temp.store("Odds",record[51])
+		temp.store("Ninki",record[52])
+		temp.store("Honsyokin",record[53])
+		temp.store("Fukasyokin",record[54])
+		temp.store("reserved3",record[55])
+		temp.store("reserved4",record[56])
+		temp.store("HaronTimeL4",record[57])
+		temp.store("HaronTimeL3",record[58])
+		temp.store("KettoNum1",record[59])
+		temp.store("Bamei1",record[60])
+		temp.store("KettoNum2",record[61])
+		temp.store("Bamei2",record[62])
+		temp.store("KettoNum3",record[63])
+		temp.store("Bamei3",record[64])
+		temp.store("TimeDiff",record[65])
+		temp.store("RecordUpKubun",record[66])
+		temp.store("DMKubun",record[67])
+		temp.store("DMTime",record[68])
+		temp.store("DMGosaP",record[69])
+		temp.store("DMGosaM",record[70])
+		temp.store("DMJyuni",record[71])
+		temp.store("KyakusituKubun",record[72])
+		#########	↑ここまでテーブルごとに書き換える↑	#########
+		
+		return temp
+	end
 end
