@@ -206,6 +206,48 @@ class Table_x_race < Template_keiba_table
 		
 		return temp
 	end
+	
+	#レースの条件を出力する
+	#場所とか、距離とか。成績の参照に使う
+	#そのレースがどんな条件で行われたかだけ抜き出す
+	#レースid, 条件のキーなハッシュにして返す
+	def get_jouken
+		output = Hash.new
+		
+		@data.each do |key, value|
+			
+			#そのレースが何だったか。トラックコードで分ける。閾値はjra-vanの方で決めている
+			#区分に合わせて、見る馬場コードも変える。障害戦は適当
+			track = value["TrackCD"].to_i
+			if track < 23 then
+				kubun = "t"	#芝
+				baba = value["SibaBabaCD"]
+			elsif track < 51 then
+				kubun = "d"	#ダート
+				baba = value["DirtBabaCD"]
+			else
+				kubun = "s"	#障害
+				baba = value["ShibaBabaCD"]
+			end
+			
+			#年齢的な条件を見る
+			#２歳、３歳限定戦は分ける。それ以外はひとまとめ
+			temp = value["SyubetuCD"].to_i
+			if temp == 11 || 12 then
+				shubetsu = 0	#若駒
+			else
+				shubetsu = 1	#古馬
+			end
+			
+			
+			joken = [value["JyoCD"], kubun, value["Kyori"], value["JyokenCD5"], shubetsu, baba].join("_")
+			
+			output.store(key, joken)
+		end
+		
+		return output
+	end
+	
 end
 
 
