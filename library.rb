@@ -230,17 +230,32 @@ class Table_x_race < Template_keiba_table
 				baba = value["ShibaBabaCD"]
 			end
 			
+			#クラスを見る
+			temp = value["JyokenCD5"].to_i
+			case temp
+			when 1..10 then
+				race = 0	#下級条件は0
+			when 11..16 then
+				race = 1	#1600万下は1
+			when 701..703 then
+				race = 0	#新馬とか未勝利は下級条件扱いで0
+			when 999 then
+				race = 1	#オープン以上は1
+			else
+				race = 0	#よくわからないものは下級条件としておく。とりあえず
+			end
+			
 			#年齢的な条件を見る
 			#２歳、３歳限定戦は分ける。それ以外はひとまとめ
 			temp = value["SyubetuCD"].to_i
-			if temp == 11 || 12 then
+			if temp == 11 || temp == 12 then
 				shubetsu = 0	#若駒
 			else
 				shubetsu = 1	#古馬
 			end
 			
 			
-			joken = [value["JyoCD"], kubun, value["Kyori"], value["JyokenCD5"], shubetsu, baba].join("_")
+			joken = [value["JyoCD"], kubun, value["Kyori"], race, shubetsu, baba].join("_")
 			
 			output.store(key, joken)
 		end
