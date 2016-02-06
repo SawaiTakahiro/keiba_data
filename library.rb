@@ -372,4 +372,16 @@ class Table_x_uma_race < Template_keiba_table_umaban
 		
 		return temp
 	end
+	
+	#上がりタイムを出力する
+	def get_last3f
+		output = Hash.new
+		
+		@data.each do |key, value|
+			last3f = (value["HaronTimeL3"].to_f * 0.1).round(1)
+			output.store(key, last3f)
+		end
+		
+		return output
+	end
 end
