@@ -8,3 +8,11 @@
     - そのあと、データをどうするかはまたその時に考える
 
 
+## ざっくりとした構造
+- Template_keiba_table
+    - 馬単位のデータ
+    - Template_keiba_table_umaban
+        - Table_x_uma_race
+    - レース単位のデータ
+    - Table_x_race
+    - Table_x_harai
