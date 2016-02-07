@@ -1,0 +1,8 @@
+insert or ignore into
+	local.list_last3f(raceid, last3f)
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid",
+	HaronTimeL3 * 0.1 as last3f
+from
+	N_UMA_RACE
+limit 25;
