@@ -1,0 +1,36 @@
+insert or ignore into
+	local.list_joken(raceid_no_num, joken)
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum as "raceid_no_num",
+	JyoCD ||
+	-- トラックコードで、芝、ダート、障害のどれか分ける
+	case
+		when TrackCD < 21 then "t"
+		when TrackCD < 51 then "d"
+		else "s"
+	end ||
+	Kyori ||
+	-- 条件コードで、オープンか否かをチェック
+	-- タブは区切り文字として認識されないっぽいので注意
+	case
+		when JyokenCD5 < 10 then 0	-- 下級条件
+		when JyokenCD5 < 16 then 1	-- 1600万下
+		when JyokenCD5 < 703 then 0	-- 新馬戦とか未勝利
+		when JyokenCD5 == 999 then 1	-- オープン
+		else 0	-- よくわからないものは、下級条件としておく
+	end ||
+	-- 年齢
+	case
+		when SyubetuCD == 11 then 0	-- 若駒
+		when SyubetuCD == 12 then 0 -- 若駒
+		else 1 -- その他は古馬として扱う
+	end ||
+	-- トラックコードで、どの馬場コンディションを使うか分ける
+	case
+		when TrackCD < 21 then SibaBabaCD
+		when TrackCD < 51 then DirtBabaCD
+		else SibaBabaCD
+	end 
+	as joken	-- 全部まとめたものを「条件コード」とする
+from
+	N_RACE;
