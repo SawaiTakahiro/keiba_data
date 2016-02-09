@@ -1,0 +1,12 @@
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum as "raceid_no_num",
+	JyoCD,
+	TrackCD,
+	Kyori,
+	JyokenCD5,
+	SyubetuCD,
+	SibaBabaCD,
+	DirtBabaCD
+from
+	N_RACE
+limit 20;
