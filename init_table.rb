@@ -27,6 +27,7 @@ list_query << "create table if not exists list_last3f(raceid primary key, last3f
 list_query << "create table if not exists list_joken(raceid_no_num primary key, joken);"
 
 list_query << File.read("./query/query_create_view_list_joken.txt")
+list_query << "create table if not exists list_last3f_hensachi(raceid primary key, hensachi);"
 
 
 ##################################################

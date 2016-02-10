@@ -38,15 +38,22 @@ end
 #log = Array.new
 #log << Time.now	#テスト用	こんな感じにやると、処理時間が振り返れそう
 
+print "データベース開くよ", Time.now, "\n"	#テスト用進捗の表示
+
 #上がりタイムを出力したファイルを抜き出す
 #data = CSV.read("./hoge.csv")
-query = "select * from view_last3f_by_joken limit 10;"
+#query = "select * from view_last3f_by_joken limit 1000;"
+query = File.read("./query/query_get_list_joken.txt")
 DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
 data = DB.execute(query)	#実行するの１個だけなのでそのまま処理してる。複数やるときはトランザクション
 
+print "#{data.length}件、処理するよ", Time.now, "\n"	#テスト用進捗の表示
+
+print "条件だけ抜き出すよ", Time.now, "\n"	#テスト用進捗の表示
 #開催が行われた条件だけ抜き出す
 list_joken = data.map{|raceid, joken, last3f| joken}.uniq.sort
 
+print "キーの数繰り返すよ", Time.now, "\n"	#テスト用進捗の表示
 #条件だけ繰り返して、それぞれ見ていく
 subtotal = Hash.new	#集計用
 list_joken.each do |key|
@@ -54,7 +61,9 @@ list_joken.each do |key|
 	subtotal[key] = data.select {|raceid, joken, last3f| joken == key }
 end
 
+print "偏差値求めるよ", Time.now, "\n"	#テスト用進捗の表示
 #条件ごとに偏差値を求めてみる
+output = Array.new
 subtotal.each do |key, list|
 	temp = list.map{|raceid, joken, last3f| last3f.to_i}
 	
@@ -64,7 +73,18 @@ subtotal.each do |key, list|
 	#偏差値を求めてみる
 	#http://www.suguru.jp/nyuushi/hensachi.html	より
 	#レースid, 値で返してみている。
-	p list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
-	
-	break
+	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
+end
+
+
+print "データを書き込んでみるよ", Time.now, "\n"	#テスト用進捗の表示
+#データを書き込んでみるよ
+#DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く→開いてるからそのまま
+DB.transaction do
+	output.each do |raceid, hensachi|
+		hensachi = -1 if hensachi.nan?	#NaNだったら-1とかしとく
+		#print raceid, "	", hensachi, "\n"	テスト用表示
+		query = "insert into list_last3f_hensachi values('#{raceid}', #{hensachi});"
+		DB.execute(query)
+	end
 end
