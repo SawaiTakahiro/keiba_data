@@ -39,37 +39,32 @@ end
 #log << Time.now	#テスト用	こんな感じにやると、処理時間が振り返れそう
 
 #上がりタイムを出力したファイルを抜き出す
-data = CSV.read("./hoge.csv")
+#data = CSV.read("./hoge.csv")
+query = "select * from view_last3f_by_joken limit 10;"
+DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
+data = DB.execute(query)	#実行するの１個だけなのでそのまま処理してる。複数やるときはトランザクション
 
 #開催が行われた条件だけ抜き出す
-list_joken = data.map{|a, b| a}.uniq.sort
-
-#条件ごとにまとめる
-subtotal = Hash.new	#集計用
+list_joken = data.map{|raceid, joken, last3f| joken}.uniq.sort
 
 #条件だけ繰り返して、それぞれ見ていく
+subtotal = Hash.new	#集計用
 list_joken.each do |key|
-	#キーに合致するものだけ抜き出す
-	temp = data.select {|a, b| a == key }
-	
 	#それの、値の方だけ抜き出して、キーごとに保存
-	subtotal[key] = temp.map{|a, b| b}
+	subtotal[key] = data.select {|raceid, joken, last3f| joken == key }
 end
 
 #条件ごとに偏差値を求めてみる
 subtotal.each do |key, list|
-	stdev = list.standard_deviation
-	average = list.avg
+	temp = list.map{|raceid, joken, last3f| last3f.to_i}
+	
+	stdev = temp.standard_deviation	#標準偏差。集計に使う
+	average = temp.avg	#平均。集計に使う
 	
 	#偏差値を求めてみる
 	#http://www.suguru.jp/nyuushi/hensachi.html	より
-	puts list.map{|value| ((value.to_i - average) * 10 / stdev) + 50}
-	
+	#レースid, 値で返してみている。
+	p list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
 	
 	break
 end
-
-
-
-
-

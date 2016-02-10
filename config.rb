@@ -11,3 +11,6 @@ DATABASE_NAME = "source/keiba_data.db"
 #出力先のディレクトリがなかったら作る
 path = "output/"
 FileUtils.mkdir_p(path) unless FileTest.exist?(path)
+
+#作業用のローカルファイル
+LOCALDATA_NAME = "source/localdata.db"

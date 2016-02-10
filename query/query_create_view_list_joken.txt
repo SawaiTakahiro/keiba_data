@@ -1,5 +1,6 @@
 create view if not exists view_last3f_by_joken as
 select
+	list_last3f.raceid,
 	list_joken.joken,
 	list_last3f.last3f
 from
