@@ -1,6 +1,7 @@
+create view if not exists view_last3f_by_joken as
 select
-	list_last3f.raceid,
-	list_joken.joken
+	list_joken.joken,
+	list_last3f.last3f
 from
 	list_last3f
-inner join list_joken on substr(list_last3f.raceid, 1, 18) = list_joken.raceid_no_num
+inner join list_joken on substr(list_last3f.raceid, 1, 18) = list_joken.raceid_no_num;

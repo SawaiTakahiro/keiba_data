@@ -4,5 +4,4 @@ select
 	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid",
 	HaronTimeL3 * 0.1 as last3f
 from
-	N_UMA_RACE
-limit 25;
+	N_UMA_RACE;
