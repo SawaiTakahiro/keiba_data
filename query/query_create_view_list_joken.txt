@@ -1,0 +1,6 @@
+select
+	list_last3f.raceid,
+	list_joken.joken
+from
+	list_last3f
+inner join list_joken on substr(list_last3f.raceid, 1, 18) = list_joken.raceid_no_num
