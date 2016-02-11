@@ -73,7 +73,7 @@ test_comment("偏差値求めるよ")	#テスト用表示
 
 #集計のためのデータは、（すでに保存済みのデータも含めて）その条件全部から持ってくる
 #条件ごとに取ってきているから重いけど…　１回だけなら
-all_data = DB.execute(query)	#計算のために持ってくるだけ。書き込むことはない
+all_data = DB.execute("select * from view_last3f_by_joken where last3f < 99.9")	#計算のために持ってくるだけ。書き込むことはない
 
 i = 0
 output = Array.new
@@ -89,8 +89,8 @@ subtotal.each do |key, list|
 	
 	#偏差値を求めてみる
 	#http://www.suguru.jp/nyuushi/hensachi.html	より
-	#レースid, 値で返してみている。
-	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
+	#レースid, 値で返してみている。タイムが速い＝値が小さいので逆だった
+	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * -10 / stdev) + 50]}
 	
 	#進捗の表示用
 	i += 1
@@ -102,8 +102,12 @@ test_comment("データ書き込んでみるよ")	#テスト用表示
 #DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く→開いてるからそのまま
 DB.transaction do
 	output.each do |raceid, hensachi|
-		hensachi = -1 if hensachi.nan?	#NaNだったら-1とかしとく
-		#print raceid, "	", hensachi, "\n"	テスト用表示
+		#print raceid, "	", hensachi, "\n"
+		if hensachi < 0 || hensachi > 200 || hensachi.nan? then
+			hensachi = -1	#よくわからない値が入っていたら-1にしとく
+			#print raceid, "	", hensachi, "\n"
+		end
+		
 		query = "insert into list_last3f_hensachi values('#{raceid}', #{hensachi});"
 		DB.execute(query)
 	end

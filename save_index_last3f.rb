@@ -17,9 +17,9 @@ require "./library.rb"
 
 def save_csv_index(filename, data)
 	CSV.open(filename, "w") do |csv|
-		data.each do |record|
-			csv << record
-		end
+		#むしろ、１行で保存しないと認識してくれないっぽかったので
+		#ループを外してそのまま。
+		csv << data
 	end
 end
 
@@ -42,8 +42,10 @@ list_race.each_with_index do |raceid_no_num, i|
 	save_filename = save_dir + raceid_no_num + ".csv"
 	next if File.exist?(save_filename)
 	
-	#レース単位で抽出する
-	temp = data.select{|raceid, value| raceid[0..17] == raceid_no_num}
+	#レース単位で抽出する。値だけ
+	temp = Array.new
+	temp << raceid_no_num
+	temp += data.select{|raceid, value| raceid[0..17] == raceid_no_num}.map{|raceid, value| value}
 	save_csv_index(save_filename,temp)
 	
 	#進捗の表示
@@ -51,7 +53,7 @@ list_race.each_with_index do |raceid_no_num, i|
 	
 	#処理数でリミッターかける場合
 	shori_count += 1
-	#break if shori_count >= 10
+	#break if shori_count >= 100
 end
 
 p "外部指数の出力が完了しました。"

@@ -6,5 +6,4 @@ from
 	view_last3f_by_joken
 left join list_last3f_hensachi
 on view_last3f_by_joken.raceid = list_last3f_hensachi.raceid
-where list_last3f_hensachi.raceid is null
-limit 100000;
+where list_last3f_hensachi.raceid is null;
