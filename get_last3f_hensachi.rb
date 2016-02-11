@@ -63,20 +63,26 @@ subtotal = Hash.new	#集計用
 list_joken.each do |key|
 	#それの、値の方だけ抜き出して、キーごとに保存
 	subtotal[key] = data.select {|raceid, joken, last3f| joken == key }
+	
+	#進捗の表示用
+	print "処理中：", subtotal.length, " / ", list_joken.length, "\r"
 end
 
 test_comment("偏差値求めるよ")	#テスト用表示
 #条件ごとに偏差値を求めてみる
+
+#集計のためのデータは、（すでに保存済みのデータも含めて）その条件全部から持ってくる
+#条件ごとに取ってきているから重いけど…　１回だけなら
+all_data = DB.execute(query)	#計算のために持ってくるだけ。書き込むことはない
+
+i = 0
 output = Array.new
 subtotal.each do |key, list|
-	test_comment("#{key}の処理だよ")	#テスト用表示
+	#test_comment("#{key}の処理だよ")	#テスト用表示
 	
-	#集計のためのデータは、（すでに保存済みのデータも含めて）その条件全部から持ってくる
-	#条件ごとに取ってきているから重いけど…
-	query = "select * from view_last3f_by_joken where joken = '#{key}';"
-	all_data = DB.execute(query)	#計算のために持ってくるだけ
-	
-	temp = all_data.map{|raceid, joken, last3f| last3f.to_i}
+	#全データの配列から、必要になる条件を抜き出す
+	#それをさらに、last3fだけintで取得してtempに〜とかしている
+	temp = all_data.select {|raceid, joken, last3f| joken == key }.map{|raceid, joken, last3f| last3f.to_i}
 	
 	stdev = temp.standard_deviation	#標準偏差。集計に使う
 	average = temp.avg	#平均。集計に使う
@@ -85,6 +91,10 @@ subtotal.each do |key, list|
 	#http://www.suguru.jp/nyuushi/hensachi.html	より
 	#レースid, 値で返してみている。
 	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
+	
+	#進捗の表示用
+	i += 1
+	print "処理中：", i, " / ", list_joken.length, "\r"
 end
 
 test_comment("データ書き込んでみるよ")	#テスト用表示
