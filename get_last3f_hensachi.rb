@@ -34,11 +34,16 @@ class Array
 	end
 end
 
+#コメント表示するだけ
+def test_comment(text)
+	print Time.now, "	",text, "\n"
+end
+
 ############################################################
 #log = Array.new
 #log << Time.now	#テスト用	こんな感じにやると、処理時間が振り返れそう
 
-print "データベース開くよ", Time.now, "\n"	#テスト用進捗の表示
+test_comment("データベース開くよ")	#テスト用表示
 
 #上がりタイムを出力したファイルを抜き出す
 #data = CSV.read("./hoge.csv")
@@ -47,13 +52,12 @@ query = File.read("./query/query_get_list_joken.txt")
 DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
 data = DB.execute(query)	#実行するの１個だけなのでそのまま処理してる。複数やるときはトランザクション
 
-print "#{data.length}件、処理するよ", Time.now, "\n"	#テスト用進捗の表示
-
-print "条件だけ抜き出すよ", Time.now, "\n"	#テスト用進捗の表示
+test_comment("#{data.length}件、処理するよ")	#テスト用表示
+test_comment("条件だけ抜き出すよ")	#テスト用表示
 #開催が行われた条件だけ抜き出す
 list_joken = data.map{|raceid, joken, last3f| joken}.uniq.sort
 
-print "キーの数繰り返すよ", Time.now, "\n"	#テスト用進捗の表示
+test_comment("キーの数繰り返すよ")	#テスト用表示
 #条件だけ繰り返して、それぞれ見ていく
 subtotal = Hash.new	#集計用
 list_joken.each do |key|
@@ -61,11 +65,18 @@ list_joken.each do |key|
 	subtotal[key] = data.select {|raceid, joken, last3f| joken == key }
 end
 
-print "偏差値求めるよ", Time.now, "\n"	#テスト用進捗の表示
+test_comment("偏差値求めるよ")	#テスト用表示
 #条件ごとに偏差値を求めてみる
 output = Array.new
 subtotal.each do |key, list|
-	temp = list.map{|raceid, joken, last3f| last3f.to_i}
+	test_comment("#{key}の処理だよ")	#テスト用表示
+	
+	#集計のためのデータは、（すでに保存済みのデータも含めて）その条件全部から持ってくる
+	#条件ごとに取ってきているから重いけど…
+	query = "select * from view_last3f_by_joken where joken = '#{key}';"
+	all_data = DB.execute(query)	#計算のために持ってくるだけ
+	
+	temp = all_data.map{|raceid, joken, last3f| last3f.to_i}
 	
 	stdev = temp.standard_deviation	#標準偏差。集計に使う
 	average = temp.avg	#平均。集計に使う
@@ -76,8 +87,7 @@ subtotal.each do |key, list|
 	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * 10 / stdev) + 50]}
 end
 
-
-print "データを書き込んでみるよ", Time.now, "\n"	#テスト用進捗の表示
+test_comment("データ書き込んでみるよ")	#テスト用表示
 #データを書き込んでみるよ
 #DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く→開いてるからそのまま
 DB.transaction do
