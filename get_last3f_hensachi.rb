@@ -46,69 +46,69 @@ end
 test_comment("データベース開くよ")	#テスト用表示
 
 #上がりタイムを出力したファイルを抜き出す
-#data = CSV.read("./hoge.csv")
-#query = "select * from view_last3f_by_joken limit 1000;"
-query = File.read("./query/query_get_list_joken.txt")
 DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
+query = File.read("./query/query_get_list_joken.txt")
 data = DB.execute(query)	#実行するの１個だけなのでそのまま処理してる。複数やるときはトランザクション
+
 
 test_comment("#{data.length}件、処理するよ")	#テスト用表示
 test_comment("条件だけ抜き出すよ")	#テスト用表示
 #開催が行われた条件だけ抜き出す
 list_joken = data.map{|raceid, joken, last3f| joken}.uniq.sort
 
-test_comment("キーの数繰り返すよ")	#テスト用表示
-#条件だけ繰り返して、それぞれ見ていく
-subtotal = Hash.new	#集計用
-list_joken.each do |key|
-	#それの、値の方だけ抜き出して、キーごとに保存
-	subtotal[key] = data.select {|raceid, joken, last3f| joken == key }
-	
-	#進捗の表示用
-	print "処理中：", subtotal.length, " / ", list_joken.length, "\r"
-end
-
-test_comment("偏差値求めるよ")	#テスト用表示
-#条件ごとに偏差値を求めてみる
 
 #集計のためのデータは、（すでに保存済みのデータも含めて）その条件全部から持ってくる
 #条件ごとに取ってきているから重いけど…　１回だけなら
+test_comment("集計用に全データとるよ")	#テスト用表示
 all_data = DB.execute("select * from view_last3f_by_joken where last3f < 99.9")	#計算のために持ってくるだけ。書き込むことはない
 
-i = 0
-output = Array.new
-subtotal.each do |key, list|
-	#test_comment("#{key}の処理だよ")	#テスト用表示
+
+test_comment("キーの数繰り返して偏差値とるよ")	#テスト用表示
+#条件ごとに偏差値を求めてみる
+list_hensachi = Array.new
+list_joken.each_with_index do |key_joken, i|
+	#それの、値の方だけ抜き出して、キーごとに保存
+	data_by_joken = data.select {|raceid, joken, last3f| joken == key_joken }
 	
 	#全データの配列から、必要になる条件を抜き出す
 	#それをさらに、last3fだけintで取得してtempに〜とかしている
-	temp = all_data.select {|raceid, joken, last3f| joken == key }.map{|raceid, joken, last3f| last3f.to_i}
+	temp = all_data.select {|raceid, joken, last3f| joken == key_joken }.map{|raceid, joken, last3f| last3f.to_i}
 	
 	stdev = temp.standard_deviation	#標準偏差。集計に使う
 	average = temp.avg	#平均。集計に使う
 	
-	#偏差値を求めてみる
+	#偏差値の求め方　参考にしたサイト
 	#http://www.suguru.jp/nyuushi/hensachi.html	より
 	#レースid, 値で返してみている。タイムが速い＝値が小さいので逆だった
-	output += list.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * -10 / stdev) + 50]}
+	
+	#raceid, 偏差値で表にする…と思ったら、検索ように馬番無しraceidが必要だった
+	list_hensachi += data_by_joken.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * -10 / stdev) + 50, raceid[0..17]]}
 	
 	#進捗の表示用
-	i += 1
 	print "処理中：", i, " / ", list_joken.length, "\r"
 end
 
+
+test_comment("raceidのリスト取得するよ")	#テスト用表示
+#馬番抜きレースIDでリストにする
+list_raceid_no_num = list_hensachi.map{|raceid, hensachi, raceid_no_num| raceid_no_num}.uniq
+
+
 test_comment("データ書き込んでみるよ")	#テスト用表示
 #データを書き込んでみるよ
-#DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く→開いてるからそのまま
 DB.transaction do
-	output.each do |raceid, hensachi|
-		#print raceid, "	", hensachi, "\n"
-		if hensachi < 0 || hensachi > 200 || hensachi.nan? then
-			hensachi = -1	#よくわからない値が入っていたら-1にしとく
-			#print raceid, "	", hensachi, "\n"
-		end
+	list_raceid_no_num.each_with_index do |key_raceid_no_num, i|
+		temp = list_hensachi.select {|raceid, hensachi, raceid_no_num| raceid_no_num == key_raceid_no_num}.map{|raceid, hensachi, raceid_no_num| hensachi}
+		text = [key_raceid_no_num, temp].join(",")
 		
-		query = "insert into list_last3f_hensachi values('#{raceid}', #{hensachi});"
+		#馬番無しレースID, 外部指数として使う用の文字列という形
+		#保存する時は、レースIDのほうで好きに分割して、文字列の方をcsvにでもするとよさげ
+		query = "insert into list_last3f_hensachi values('#{key_raceid_no_num}', '#{text}');"
 		DB.execute(query)
+		
+		#進捗の表示用
+		print "処理中：", i, " / ", list_raceid_no_num.length, "\r"
 	end
 end
+
+test_comment("処理が終わったよ")	#テスト用表示

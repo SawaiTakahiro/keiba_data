@@ -5,5 +5,5 @@ select
 from
 	view_last3f_by_joken
 left join list_last3f_hensachi
-on view_last3f_by_joken.raceid = list_last3f_hensachi.raceid
+on substr(view_last3f_by_joken.raceid, 1, 18) = list_last3f_hensachi.raceid
 where list_last3f_hensachi.raceid is null;

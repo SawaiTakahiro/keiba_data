@@ -1,9 +1,2 @@
 create view if not exists view_last3f_by_joken as
-select
-	list_last3f.raceid,
-	list_joken.joken,
-	list_last3f.last3f
-from
-	list_last3f
-inner join list_joken on substr(list_last3f.raceid, 1, 18) = list_joken.raceid_no_num
-order by list_joken.joken;
+select	list_last3f.raceid,	list_joken.joken,	list_last3f.last3ffrom	list_last3finner join list_joken on substr(list_last3f.raceid, 1, 18) = list_joken.raceid_no_numwhere	substr(list_last3f.raceid, 11, 2) >= "01" and substr(list_last3f.raceid, 11, 2) <= "10" order by list_joken.joken;
