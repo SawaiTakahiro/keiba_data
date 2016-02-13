@@ -1,0 +1,6 @@
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid",
+	KettoNum
+from
+	N_UMA_RACE
+order by KettoNum;
