@@ -30,6 +30,7 @@ list_query << File.read("./query/query_create_view_list_joken.txt")
 list_query << "create table if not exists list_last3f_hensachi(raceid primary key, hensachi);"
 list_query << "create table if not exists list_last3f_hensachi2(raceid primary key, hensachi);"	#成績の検証に使う用。名前は今度考える
 
+list_query << "create table if not exists list_raceid_by_uma(raceid primary key, kettonum);"	#馬ごとレースIDテーブル
 
 ##################################################
 #ここから、データベースに足す処理

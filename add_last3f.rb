@@ -29,6 +29,11 @@ path_file_query = "./query/query_add_joken.txt"
 query = File.read(path_file_query)
 db.execute(query)
 
+#馬ごとレースIDのリストも足しちゃう
+path_file_query = "./query/query_add_raceid_by_uma.txt"
+query = File.read(path_file_query)
+db.execute(query)
+
 
 db.execute('detach database local')	#コピー先のデータベースを外す！
 db.close	#データベースを閉じる
