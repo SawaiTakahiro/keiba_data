@@ -34,11 +34,6 @@ class Array
 	end
 end
 
-#コメント表示するだけ
-def test_comment(text)
-	print Time.now, "	",text, "\n"
-end
-
 ############################################################
 #log = Array.new
 #log << Time.now	#テスト用	こんな感じにやると、処理時間が振り返れそう

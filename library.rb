@@ -7,6 +7,12 @@
  共通の処理とかをまとめたファイル。
 =end
 
+#コメント表示するだけ
+def test_comment(text)
+	print Time.now, "	",text, "\n"
+end
+
+
 #テーブルの構造についての解説は、以下のヘルプページを見る
 #EveryDB2概説
 #http://cattle.w-wind.net/edb2_manual/
