@@ -1,0 +1,14 @@
+create view if not exists view_kensho_last3f_hensachi as
+select
+	list_zenso_raceid.raceid,
+	list_rank.rank,
+	list_last3f_hensachi2.hensachi
+from
+	list_zenso_raceid
+left join list_last3f_hensachi2
+	on list_zenso_raceid.zenso_raceid = list_last3f_hensachi2.raceid
+left join list_rank
+	on list_zenso_raceid.raceid = list_rank.raceid
+where
+	list_last3f_hensachi2.hensachi is not null
+;

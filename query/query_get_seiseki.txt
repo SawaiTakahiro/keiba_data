@@ -1,0 +1,5 @@
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid",
+	kakuteiJyuni
+from
+	N_UMA_RACE;
