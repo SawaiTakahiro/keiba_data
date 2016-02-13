@@ -48,6 +48,7 @@ test_comment("データベース開くよ")	#テスト用表示
 #上がりタイムを出力したファイルを抜き出す
 DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
 query = File.read("./query/query_get_list_joken.txt")
+#query = "select * from view_last3f_by_joken;"	#全件とる場合。保存用のテーブルをdeleteすればいらないけど…
 data = DB.execute(query)	#実行するの１個だけなのでそのまま処理してる。複数やるときはトランザクション
 
 
@@ -95,7 +96,6 @@ test_comment("raceidのリスト取得するよ")	#テスト用表示
 #馬番抜きレースIDでリストにする
 list_raceid_no_num = list_hensachi.map{|raceid, hensachi, raceid_no_num| raceid_no_num}.uniq
 
-
 test_comment("データ書き込んでみるよ")	#テスト用表示
 #データを書き込んでみるよ
 DB.transaction do
@@ -110,6 +110,22 @@ DB.transaction do
 		
 		#進捗の表示用
 		print "処理中：", i, " / ", list_raceid_no_num.length, "\r"
+	end
+end
+
+test_comment("暫定：参照用に普通の形でも保存しておく")	#テスト用表示
+#データを書き込んでみるよ
+DB.transaction do
+	list_hensachi.each_with_index do |record, i|
+		#馬番無しレースID, 外部指数として使う用の文字列という形
+		#保存する時は、レースIDのほうで好きに分割して、文字列の方をcsvにでもするとよさげ
+		raceid = record[0]
+		last3f = record[1]
+		query = "insert into list_last3f_hensachi2 values('#{raceid}', '#{last3f}');"
+		DB.execute(query)
+		
+		#進捗の表示用
+		print "処理中：", i, " / ", list_hensachi.length, "\r"
 	end
 end
 
