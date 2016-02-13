@@ -1,0 +1,8 @@
+select
+	"RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid",
+	(select "RX" || Year || MonthDay || JyoCD || Kaiji || Nichiji || RaceNum || Umaban as "raceid" from N_UMA_RACE where KettoNum = 2010100140 limit 1 offset 1) as zenso_raceid
+from
+	N_UMA_RACE
+where
+	KettoNum = 2010100140
+limit 1;
