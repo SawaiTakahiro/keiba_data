@@ -82,12 +82,14 @@ list_joken.each_with_index do |key_joken, i|
 	#レースid, 値で返してみている。タイムが速い＝値が小さいので逆だった
 	
 	#raceid, 偏差値で表にする…と思ったら、検索ように馬番無しraceidが必要だった
-	list_hensachi += data_by_joken.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * -10 / stdev) + 50, raceid[0..17]]}
+	list_hensachi += data_by_joken.map{|raceid, joken, last3f| [raceid ,((last3f.to_i - average) * -10 / stdev).round(2) + 50, raceid[0..17]]}
 	
 	#進捗の表示用
 	print "処理中：", i, " / ", list_joken.length, "\r"
 end
 
+
+File.write("hoge.txt", list_hensachi)
 
 test_comment("raceidのリスト取得するよ")	#テスト用表示
 #馬番抜きレースIDでリストにする

@@ -15,17 +15,17 @@ include SQLite3
 require "./config.rb"
 require "./library.rb"
 
+#csvの機能を使って保存するのはやめた
+#csvファイルに、ただのテキストとして書き込んでいくことに
 def save_csv_index(filename, data)
-	CSV.open(filename, "w") do |csv|
-		#むしろ、１行で保存しないと認識してくれないっぽかったので
-		#ループを外してそのまま。
-		csv << data
+	File.open(filename, "w") do |file|
+		file << data.join("\n")
 	end
 end
 
 ############################################################
 #外部指数の保存フォルダ
-save_dir = "output/index_last3f/"
+save_dir = "output/index_last3f2/"
 FileUtils.mkdir_p(save_dir) unless FileTest.exist?(save_dir)
 
 
@@ -33,20 +33,20 @@ FileUtils.mkdir_p(save_dir) unless FileTest.exist?(save_dir)
 DB = SQLite3::Database.new(LOCALDATA_NAME)	#データベースを開く
 data = DB.execute("select * from list_last3f_hensachi;")
 
-#レースのリストだけ抜き出す
-#これ単位でファイルを保存する
-shori_count = 0	#保存したファイルのカウント。けっこう重いので
-list_race = data.map{|raceid, value| raceid[0..17]}.uniq
-list_race.each_with_index do |raceid_no_num, i|
+#キーを日付に置き換える
+data_hiduke = data.map{|raceid_no_num, text| [raceid_no_num[0..9], text]}
+
+#開催の日付単位でファイルの保存をする
+shori_count = 0	#保存したファイルのカウント。けっこう重いので進捗表示に使う
+list_race = data_hiduke.map{|hiduke, text| hiduke}.uniq
+list_race.each_with_index do |key_hiduke, i|
 	#すでに存在していたら飛ばす
-	save_filename = save_dir + raceid_no_num + ".csv"
-	next if File.exist?(save_filename)
+	save_filename = save_dir + key_hiduke + ".csv"
+	#next if File.exist?(save_filename)
 	
 	#レース単位で抽出する。値だけ
-	temp = Array.new
-	temp << raceid_no_num
-	temp += data.select{|raceid, value| raceid[0..17] == raceid_no_num}.map{|raceid, value| value}
-	save_csv_index(save_filename,temp)
+	save_data = data_hiduke.select{|hiduke, text| hiduke == key_hiduke}.map{|hiduke, text| text}
+	save_csv_index(save_filename,save_data)
 	
 	#進捗の表示
 	print i, " / ",list_race.length, "\r"
